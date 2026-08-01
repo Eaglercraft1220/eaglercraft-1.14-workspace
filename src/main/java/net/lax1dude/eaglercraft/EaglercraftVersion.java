@@ -6,16 +6,16 @@ public class EaglercraftVersion {
 
     /// Customize these to fit your fork:
 
-    public static final String projectForkName = "Eaglercraft 1.14.4";
+    public static final String projectForkName = "Minecraft 1.14.4";
     public static final String projectForkVersion = "u0";
-    public static final String projectForkVendor = "EymenWSMC";
+    public static final String projectForkVendor = "ShadowFlare Teams";
 
     public static final String projectForkURL = "";
 
     /// ///////////////////////////////////////////////////////////////////
 
-    public static final String projectOriginName = "Eaglercraft 1.14.4";
-    public static final String projectOriginAuthor = "EymenWSMC";
+    public static final String projectOriginName = "Minecraft 1.14.4";
+    public static final String projectOriginAuthor = "ShadowFlare Teams";
     public static final String projectOriginVersion = "u0";
     public static final String projectOriginServerVersion = "";
 

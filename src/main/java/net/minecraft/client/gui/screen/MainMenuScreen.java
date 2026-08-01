@@ -26,7 +26,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SharedConstants;
 import net.minecraft.util.StringUtils;
-;import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -47,7 +47,7 @@ import java.util.concurrent.Executor;
 public class MainMenuScreen extends Screen {
     public static final RenderSkyboxCube PANORAMA_RESOURCES = new RenderSkyboxCube(new ResourceLocation("textures/gui/title/background/panorama"));
     private static final ResourceLocation PANORAMA_OVERLAY_TEXTURES = new ResourceLocation("textures/gui/title/background/panorama_overlay.png");
-    private static final ResourceLocation ACCESSIBILITY_TEXTURES = new ResourceLocation("textures/gui/friends.png");
+    private static final ResourceLocation ACCESSIBILITY_TEXTURES = new ResourceLocation("textures/gui/accessibility.png");
     private final boolean showTitleWronglySpelled;
     private static final ResourceLocation SPLASH_TEXTS = new ResourceLocation("texts/splashes.txt");
     private EaglercraftRandom random = new EaglercraftRandom();
@@ -174,44 +174,41 @@ public class MainMenuScreen extends Screen {
         this.addButton(new Button(this.width / 2 - 100, j + 72 + 12, 98, 20, I18n.format("menu.options"), (p_213096_1_) -> {
             this.mc.displayGuiScreen(new OptionsScreen(this, this.mc.gameSettings));
         }));
-        this.addButton(new Button(this.width / 2 + 2, j + 72 + 12, 98, 20, I18n.format("Edit Profile"), (p_213094_1_) -> {
+        this.addButton(new Button(this.width / 2 + 2, j + 72 + 12, 98, 20, I18n.format("Accounts"), (p_213094_1_) -> {
             this.mc.displayGuiScreen(new GuiScreenEditProfile(new MainMenuScreen()));
         }));
-        if (mc.gameSettings.socialFeatures) {
-            this.addButton(new ImageButton(this.width / 2 + 104, j + 72 + 12, 20, 20, 0, 0, 0, ACCESSIBILITY_TEXTURES, 16, 16, (p_213088_1_) -> {
 
-                if (!mc.gameSettings.socialFeatures) {
-                    this.mc.displayGuiScreen(new GuiSocialInfoScreen("INFO", "You have disabled social features! Enable it from Chat Settings.", this));
-                } else {
-                    this.mc.displayGuiScreen(new GuiSocialLoginScreen(this));
-                }
+        // accessibilityボタンは常に表示（設定による表示/非表示を削除）、クリック動作なし
+        this.addButton(new ImageButton(this.width / 2 + 104, j + 72 + 12, 20, 20, 0, 0, 0, ACCESSIBILITY_TEXTURES, 30, 30, (p_213088_1_) -> {
+            // 動作なし
+        }, I18n.format("narrator.button.accessibility")) {
+            @Override
+            public void renderButton(int mouseX, int mouseY, float partialTicks) {
+                MainMenuScreen.this.mc.getTextureManager().bindTexture(WIDGETS_LOCATION);
+                GlStateManager.color4f(1.0F, 1.0F, 1.0F, this.alpha);
+                int i = this.getYImage(this.isHovered());
+                GlStateManager.enableBlend();
+                GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+                this.blit(this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
+                this.blit(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+                MainMenuScreen.this.mc.getTextureManager().bindTexture(ACCESSIBILITY_TEXTURES);
+                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-            }, I18n.format("narrator.button.accessibility")) {
-                @Override
-                public void renderButton(int mouseX, int mouseY, float partialTicks) {
-                    MainMenuScreen.this.mc.getTextureManager().bindTexture(WIDGETS_LOCATION);
-                    GlStateManager.color4f(1.0F, 1.0F, 1.0F, this.alpha);
-                    int i = this.getYImage(this.isHovered());
-                    GlStateManager.enableBlend();
-                    GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                    GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-                    this.blit(this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
-                    this.blit(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
-                    MainMenuScreen.this.mc.getTextureManager().bindTexture(ACCESSIBILITY_TEXTURES);
-                    GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                    int iconX = this.x + 2;
-                    int iconY = this.y + 2;
+                // 表示サイズ（20x20ボタンに対して上下左右2px余白）
+                final int displaySize = 15;
+                final int iconX = this.x + (this.width - displaySize) / 2 + 1;  // 右に1px
+                final int iconY = this.y + (this.height - displaySize) / 2 + 1;  // 下に1px
 
+                GlStateManager.pushMatrix();
+                GlStateManager.translatef((float) iconX, (float) iconY, 0.0F);
+                float scale = (float) displaySize / 30.0F;
+                GlStateManager.scalef(scale, scale, 1.0F);
+                this.blit(0, 0, 0, 0, 30, 30, 30, 30);  // 元画像をそのまま描いてから縮小
+                GlStateManager.popMatrix();
+            }
+        });
 
-                    this.blit(iconX, iconY, 0, 0, 16, 16, 16, 16);
-
-                    //tooltip you eagler
-                    if (this.isHovered()) {
-                        MainMenuScreen.this.renderTooltip(I18n.format("Friends"), mouseX, mouseY);
-                    }
-                }
-            });
-        }
         if (this.openGLWarning1 != null) {
             this.openGLWarning1.init(j);
         }
@@ -231,8 +228,9 @@ public class MainMenuScreen extends Screen {
         this.addButton(new Button(this.width / 2 - 100, yIn + rowHeightIn * 1, 200, 20, I18n.format("menu.multiplayer"), (p_213086_1_) -> {
             this.mc.displayGuiScreen(new MultiplayerScreen(this));
         }));
-        this.addButton(new Button(this.width / 2 - 100, yIn + rowHeightIn * 2, 200, 20, I18n.format("Credits"), (p_213095_1_) -> {
-            this.forkOnGithub();
+        // Realms/Creditsボタンの動作を無効化
+        this.addButton(new Button(this.width / 2 - 100, yIn + rowHeightIn * 2, 200, 20, I18n.format("Minecraft Realms"), (p_213095_1_) -> {
+            // 動作なし
         }));
     }
 
@@ -310,8 +308,8 @@ public class MainMenuScreen extends Screen {
                 GlStateManager.popMatrix();
             }
 
-            String s = "Minecraft " + SharedConstants.getVersion().getName();
-            String s1 = EaglercraftVersion.projectForkName + " (" + EaglercraftVersion.projectForkVersion + ")";
+            String s = "OptiFine 1.14.4 HD U G5";
+            String s1 = "Minecraft 1.14.4";
             if (this.mc.isDemo()) {
                 s = s + " Demo";
             } else {
